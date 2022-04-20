@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <string>
 #include <variant>
+#include <deque>
 
 namespace parse {
 
@@ -87,7 +88,7 @@ public:
 
 class Lexer {
 public:
-    explicit Lexer(std::istream& input);
+  explicit Lexer(std::istream& input);
 
     // Возвращает ссылку на текущий токен или token_type::Eof, если поток токенов закончился
     [[nodiscard]] const Token& CurrentToken() const;
@@ -133,6 +134,13 @@ public:
 
 private:
     // Реализуйте приватную часть самостоятельно
+  std::deque<Token> _tokens;
+  std::deque<Token>::const_iterator _current_token;
+
+  bool ParseNumber(char& ch, std::istream& inp);
+  bool ParseIdentifer(char& ch, std::istream& inp);
+  bool ParseSymbol(char& ch, std::istream& inp);
+  bool ParseString(char& ch, std::istream& inp);
 };
 
 }  // namespace parse
