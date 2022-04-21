@@ -152,7 +152,8 @@ bool Lexer::ParseIdentifer(char& ch, std::istream& inp) {
 }
 
 bool Lexer::ParseSymbol(char& ch, std::istream& inp) {
-  static const std::set<char> singl_symbol = { '+' ,'-' ,'=', '*','/','<','>'};
+  static const std::set<char> singl_symbol = {
+    '+' ,'-' ,'=', '*','/','<','>',':',',','.','(',')'};
   static const std::set<char> doubl_symbol_start = { '=', '!','<','>' };
 
   if (doubl_symbol_start.count(ch) || singl_symbol.count(ch)) {
@@ -201,6 +202,18 @@ bool Lexer::ParseString(char& ch, std::istream& inp){
   }
   return false;
 }
+
+bool Lexer::ParseComment(char& ch, std::istream& inp) {
+  if (ch == '#') {
+    
+    while (inp.get(ch) && (ch != '\n')) {
+
+    }
+    return true;
+  }
+  return false;
+}
+
 bool istruespace(char ch) {
   return ch == ' ';
 }
@@ -212,9 +225,11 @@ Lexer::Lexer(std::istream& inp) {
   int current_indent = 0;
   while (inp.get(ch)) {
 
+    ParseComment(ch, inp);
+
     if (new_line && (istruespace(ch) || current_indent > 0)) {
       int counter = 0;
-      
+
       if (istruespace(ch)) {
         ++counter;
       }
@@ -250,12 +265,15 @@ Lexer::Lexer(std::istream& inp) {
         continue;
       }
     }
+    
+    if (new_line && ch == '\n')
+      continue;
+
     new_line = false;
 
     //new line
     if (ch == '\n') {
-      if(_tokens.size() != 0)
-        _tokens.push_back(token_type::Newline());
+      _tokens.push_back(token_type::Newline());
       new_line = true;
       continue;
     }
@@ -281,6 +299,12 @@ Lexer::Lexer(std::istream& inp) {
       _tokens.push_back(token_type::Dedent());      
     }
   }
+  if (_tokens.size() > 0 &&
+    !std::holds_alternative<token_type::Newline>(_tokens.back()) &&
+    !std::holds_alternative<token_type::Dedent>(_tokens.back())) {
+    _tokens.push_back(token_type::Newline());
+  }
+
   _tokens.push_back(token_type::Eof());
   _current_token = _tokens.cbegin();
 }

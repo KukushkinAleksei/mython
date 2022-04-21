@@ -100,36 +100,52 @@ public:
     // В противном случае метод выбрасывает исключение LexerError
     template <typename T>
     const T& Expect() const {
-        using namespace std::literals;
-        // Заглушка. Реализуйте метод самостоятельно
-        throw LexerError("Not implemented"s);
+      if (std::holds_alternative<T>(*_current_token)) {
+        return std::get<T>(*_current_token);
+      }
+      else {
+        using namespace std::literals;        
+        throw LexerError("Not expected token type"s);
+      }        
     }
 
     // Метод проверяет, что текущий токен имеет тип T, а сам токен содержит значение value.
     // В противном случае метод выбрасывает исключение LexerError
     template <typename T, typename U>
-    void Expect(const U& /*value*/) const {
-        using namespace std::literals;
-        // Заглушка. Реализуйте метод самостоятельно
-        throw LexerError("Not implemented"s);
+    void Expect(const U& val) const {
+      const T& token = Expect<T>();
+      if (token.value != val) {
+        throw LexerError("Not expected token value"s);
+      }
     }
 
     // Если следующий токен имеет тип T, метод возвращает ссылку на него.
     // В противном случае метод выбрасывает исключение LexerError
     template <typename T>
     const T& ExpectNext() {
+      if (std::holds_alternative<T>(*std::next(_current_token))) {
+        return std::get<T>(NextToken());
+      }
+      else {
         using namespace std::literals;
-        // Заглушка. Реализуйте метод самостоятельно
-        throw LexerError("Not implemented"s);
+        throw LexerError("Not expected token type"s);
+      }
     }
 
     // Метод проверяет, что следующий токен имеет тип T, а сам токен содержит значение value.
     // В противном случае метод выбрасывает исключение LexerError
     template <typename T, typename U>
-    void ExpectNext(const U& /*value*/) {
+    void ExpectNext(const U& val) {
+      if (std::holds_alternative<T>(*std::next(_current_token))) {
+        const T& token = std::get<T>(NextToken());
+        if (token.value != val) {
+          throw LexerError("Not expected token value"s);
+        }
+      }
+      else {
         using namespace std::literals;
-        // Заглушка. Реализуйте метод самостоятельно
-        throw LexerError("Not implemented"s);
+        throw LexerError("Not expected token type"s);
+      }
     }
 
 private:
@@ -141,6 +157,7 @@ private:
   bool ParseIdentifer(char& ch, std::istream& inp);
   bool ParseSymbol(char& ch, std::istream& inp);
   bool ParseString(char& ch, std::istream& inp);
+  bool ParseComment(char& ch, std::istream& inp);
 };
 
 }  // namespace parse
