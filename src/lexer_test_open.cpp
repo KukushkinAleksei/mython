@@ -87,6 +87,24 @@ void TestStrings() {
     ASSERT_EQUAL(lexer.NextToken(),
       Token(token_type::String{ "single quote ' inside"s }));
   }
+  {
+    istringstream input(
+      R"("tab in string \a \b \t \n \v \f \r \? \ here")"s);
+    Lexer lexer(input);
+    ASSERT_EQUAL(lexer.CurrentToken(),
+      Token(token_type::String{ "tab in string \\a \\b \\t \\n \\v \\f \\r \\? \\ here"s }));
+  }
+  {
+    istringstream input(
+      R"(""   '')"s);
+    Lexer lexer(input);
+
+    ASSERT_EQUAL(lexer.CurrentToken(),
+      Token(token_type::String{ ""s }));
+    ASSERT_EQUAL(lexer.NextToken(),
+      Token(token_type::String{ ""s }));
+  }
+
 }
 
 void TestOperations() {

@@ -198,8 +198,12 @@ bool Lexer::ParseString(char& ch, std::istream& inp){
       if (ch == '\\') {
         char next;
         inp.get(next);
-        if (next == '\'')buffer << '\'';
-        if (next == '\"')buffer << '\"';
+        if (next == '\'')
+          buffer << '\'';
+        else if (next == '\"')
+          buffer << '\"';
+        else
+          buffer << ch << next;        
       }
       else {
         buffer << ch;

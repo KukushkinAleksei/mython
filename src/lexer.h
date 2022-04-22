@@ -109,29 +109,14 @@ public:
         throw LexerError("Not expected token type"s);
       }        
     }
-
-
-    template<typename T, typename = void>
-    struct has_value : std::false_type { };
-
-    template<typename T>
-    struct has_value<T, decltype(std::declval<T>().value, void())> : std::true_type { };
-
     // Метод проверяет, что текущий токен имеет тип T, а сам токен содержит значение value.
     // В противном случае метод выбрасывает исключение LexerError
     template <typename T, typename U>
-    void Expect(const U& val) const {
-      using namespace std::literals;
-      const T& token = Expect<T>();
-      if constexpr (has_value<T>::value) {
-        if (token.value != val) {          
-          throw LexerError("Not expected token value"s);
-        }
+    void Expect(const U& val) const {      
+      if (Expect<T>().value != val) {
+        using namespace std::literals;
+        throw LexerError("Not expected token value"s);
       }
-      else {
-        throw LexerError("Token does not have field value"s);
-      }
-
     }
 
     // Если следующий токен имеет тип T, метод возвращает ссылку на него.
@@ -153,17 +138,11 @@ public:
     void ExpectNext(const U& val) {
       using namespace std::literals;
       if (std::holds_alternative<T>(*std::next(_current_token))) {
-        //const T& token = std::get<T>(NextToken());
-        if constexpr (has_value<T>::value) {
-          if (std::get<T>(NextToken()).value != val) {
-            throw LexerError("Not expected token value"s);
-          }
-        }
-        else {
-          throw LexerError("Token does not have field value"s);
+        if (std::get<T>(NextToken()).value != val) {
+          throw LexerError("Not expected token value"s);
         }
       }
-      else {        
+      else {
         throw LexerError("Not expected token type"s);
       }
     }
