@@ -195,7 +195,15 @@ bool Lexer::ParseString(char& ch, std::istream& inp){
     char start = ch;
     ostringstream buffer;
     while (inp.get(ch) && (ch != start)) {
-      buffer << ch;
+      if (ch == '\\') {
+        char next;
+        inp.get(next);
+        if (next == '\'')buffer << '\'';
+        if (next == '\"')buffer << '\"';
+      }
+      else {
+        buffer << ch;
+      }
     }
     _tokens.push_back(token_type::String{ buffer.str() });
     return true;
