@@ -198,16 +198,37 @@ bool Lexer::ParseString(char& ch, std::istream& inp){
       if (ch == '\\') {
         char next;
         inp.get(next);
-        if (next == '\'')
+        //if (next == inp.eof())
+        //  throw std::logic_error("Unexpected EOF in string");
+
+        switch (next) {
+        case 'n':
+          buffer << '\n';
+          break;
+        case 't':
+          buffer << '\t';
+          break;
+        case 'r':
+          buffer << '\r';
+          break;
+        case '"':
+          buffer << '"';
+          break;
+        case '\'':
           buffer << '\'';
-        else if (next == '\"')
-          buffer << '\"';
-        else
-          buffer << ch << next;        
+          break;
+        case '\\':
+          buffer << '\\';
+          break;
+        }        
       }
+      //else if (ch == '\n' || ch == '\r') {
+      //  throw std::logic_error("Unexpected end of line");
+      //}
       else {
         buffer << ch;
       }
+
     }
     _tokens.push_back(token_type::String{ buffer.str() });
     return true;

@@ -89,10 +89,10 @@ void TestStrings() {
   }
   {
     istringstream input(
-      R"("tab in string \a \b \t \n \v \f \r \? \ here")"s);
+      R"("tab in string \t \n \\ \a here")"s);
     Lexer lexer(input);
     ASSERT_EQUAL(lexer.CurrentToken(),
-      Token(token_type::String{ "tab in string \\a \\b \\t \\n \\v \\f \\r \\? \\ here"s }));
+      Token(token_type::String{ "tab in string \t \n \\  here"s }));
   }
   {
     istringstream input(
