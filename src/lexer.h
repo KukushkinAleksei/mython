@@ -101,8 +101,8 @@ public:
     // В противном случае метод выбрасывает исключение LexerError
     template <typename T>
     const T& Expect() const {
-      if (std::holds_alternative<T>(*_current_token)) {
-        return std::get<T>(*_current_token);
+      if (_current_token->Is<T>()) {
+        return _current_token->As<T>();
       }
       else {
         using namespace std::literals;
@@ -123,8 +123,8 @@ public:
     // В противном случае метод выбрасывает исключение LexerError
     template <typename T>
     const T& ExpectNext() {
-      if (std::holds_alternative<T>(*std::next(_current_token))) {
-        return std::get<T>(NextToken());
+      if (std::next(_current_token)->Is<T>()) {
+        return NextToken().As<T>();
       }
       else {
         using namespace std::literals;
@@ -137,8 +137,8 @@ public:
     template <typename T, typename U>
     void ExpectNext(const U& val) {
       using namespace std::literals;
-      if (std::holds_alternative<T>(*std::next(_current_token))) {
-        if (std::get<T>(NextToken()).value != val) {
+      if (std::next(_current_token)->Is<T>()) {
+        if (NextToken().As<T>().value != val) {
           throw LexerError("Not expected token value"s);
         }
       }
