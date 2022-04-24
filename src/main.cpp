@@ -1,4 +1,5 @@
 #include "lexer.h"
+#include "runtime.h"
 #include "test_runner_p.h"
 
 #include <iostream>
@@ -6,8 +7,21 @@
 namespace parse {
 void RunOpenLexerTests(TestRunner& tr);
 }
+namespace runtime {
+void RunObjectHolderTests(TestRunner& tr);
+void RunObjectsTests(TestRunner& tr);
+}  // namespace runtime
 
-int main() {
+namespace {
+
+  void TestAll() {
+    TestRunner tr;
+    runtime::RunObjectHolderTests(tr);
+    runtime::RunObjectsTests(tr);
+  }
+}
+
+int TestLexer() {
     try {
         TestRunner tr;
         parse::RunOpenLexerTests(tr);
@@ -21,4 +35,12 @@ int main() {
         std::cerr << e.what();
         return 1;
     }
+    return 0;
+}
+
+int main() { 
+  TestAll();
+  //TestLexer();
+
+  return 0;
 }
