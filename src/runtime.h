@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <deque>
 
 namespace runtime {
 
@@ -135,7 +136,7 @@ public:
     // Создаёт класс с именем name и набором методов methods, унаследованный от класса parent
     // Если parent равен nullptr, то создаётся базовый класс
     explicit Class(std::string name, std::vector<Method> methods, const Class* parent);
-
+    
     // Возвращает указатель на метод name или nullptr, если метод с таким именем отсутствует
     [[nodiscard]] const Method* GetMethod(const std::string& name) const;
 
@@ -145,6 +146,12 @@ public:
     // Выводит в os строку "Class <имя класса>", например "Class cat"
     void Print(std::ostream& os, Context& context) override;
 
+    const Class* GetParent() const;
+private:
+  const Class* parent_;
+  std::string name_;
+  std::vector<Method> methods_;
+  std::unordered_map<std::string, const Method*> name_to_method_;  
 };
 
 // Экземпляр класса
@@ -174,6 +181,10 @@ public:
     [[nodiscard]] Closure& Fields();
     // Возвращает константную ссылку на Closure, содержащую поля объекта
     [[nodiscard]] const Closure& Fields() const;
+
+private:
+  const Class& cls_;
+  Closure fields_;
 };
 
 /*
