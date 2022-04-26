@@ -81,7 +81,6 @@ namespace runtime {
     else {
       os << this;
     }
-
   }
 
   bool ClassInstance::HasMethod(const std::string& method, size_t argument_count) const {
