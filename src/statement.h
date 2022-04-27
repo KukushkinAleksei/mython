@@ -131,7 +131,7 @@ public:
     // Возвращает объект, содержащий значение типа ClassInstance
     runtime::ObjectHolder Execute(runtime::Closure& closure, runtime::Context& context) override;
 private:
-  const runtime::Class& class_ref;
+  runtime::ClassInstance class_inst_;
   std::vector<std::unique_ptr<Statement>> args_;
 };
 
@@ -278,6 +278,16 @@ public:
 private:
   std::unique_ptr<Statement> body_;
 };
+
+class ReturnExeption : public std::exception {
+public:
+  explicit ReturnExeption(const runtime::ObjectHolder& obj);
+  runtime::ObjectHolder GetValue();
+
+private:
+  runtime::ObjectHolder obj_;
+};
+
 
 // Выполняет инструкцию return с выражением statement
 class Return : public Statement {

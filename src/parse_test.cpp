@@ -36,6 +36,36 @@ void TestProgramWithClasses() {
     const string program = R"(
 program_name = "Classes test"
 
+class Point:
+  def __init__(x, y):
+    self.x = x
+    self.y = y
+
+  def SetX(value):
+    self.x = value
+  def SetY(value):
+    self.y = value
+
+  def __str__():
+    return '(' + str(self.x) + '; ' + str(self.y) + ')'
+
+origin = Point(0, 0)
+
+print origin
+)"s;
+
+    runtime::DummyContext context;
+
+    runtime::Closure closure;
+    auto tree = ParseProgramFromString(program);
+    tree->Execute(closure, context);
+
+    ASSERT_EQUAL(context.output.str(), "(0; 0)\n"s);
+}
+void TestProgramWithClasses1() {
+  const string program = R"(
+program_name = "Classes test"
+
 class Empty:
   def __init__():
     x = 0
@@ -61,13 +91,13 @@ far_far_away = Point(10000, 50000)
 print program_name, origin, far_far_away, origin.SetX(1)
 )"s;
 
-    runtime::DummyContext context;
+  runtime::DummyContext context;
 
-    runtime::Closure closure;
-    auto tree = ParseProgramFromString(program);
-    tree->Execute(closure, context);
+  runtime::Closure closure;
+  auto tree = ParseProgramFromString(program);
+  tree->Execute(closure, context);
 
-    ASSERT_EQUAL(context.output.str(), "Classes test (0; 0) (10000; 50000) None\n"s);
+  ASSERT_EQUAL(context.output.str(), "Classes test (0; 0) (10000; 50000) None\n"s);
 }
 
 void TestProgramWithIf() {
@@ -249,6 +279,7 @@ print r, c, t1, t2
 
 void TestParseProgram(TestRunner& tr) {
     RUN_TEST(tr, parse::TestSimpleProgram);
+    RUN_TEST(tr, parse::TestProgramWithClasses1);
     RUN_TEST(tr, parse::TestProgramWithClasses);
     RUN_TEST(tr, parse::TestProgramWithIf);
     RUN_TEST(tr, parse::TestReturnFromIf);

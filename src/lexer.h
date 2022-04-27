@@ -123,28 +123,16 @@ public:
     // В противном случае метод выбрасывает исключение LexerError
     template <typename T>
     const T& ExpectNext() {
-      if (std::next(_current_token)->Is<T>()) {
-        return NextToken().As<T>();
-      }
-      else {
-        using namespace std::literals;
-        throw LexerError("Not expected token type"s);
-      }
+      NextToken();
+      return Expect<T>();
     }
 
     // Метод проверяет, что следующий токен имеет тип T, а сам токен содержит значение value.
     // В противном случае метод выбрасывает исключение LexerError
     template <typename T, typename U>
     void ExpectNext(const U& val) {
-      using namespace std::literals;
-      if (std::next(_current_token)->Is<T>()) {
-        if (NextToken().As<T>().value != val) {
-          throw LexerError("Not expected token value"s);
-        }
-      }
-      else {
-        throw LexerError("Not expected token type"s);
-      }
+      NextToken();
+      Expect<T>(val);
     }
 
 private:

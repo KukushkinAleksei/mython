@@ -72,8 +72,8 @@ namespace ast {
         output << " ";
       }
       auto holder = argument->Execute(closure, context);
-      if (holder.Get() != nullptr) {
-        holder.Get()->Print(output, context);
+      if (holder) {
+        holder->Print(output, context);
       }
       else {
         output << "None";
@@ -225,11 +225,21 @@ namespace ast {
     return ObjectHolder::None();
   }
 
+  ReturnExeption::ReturnExeption(const runtime::ObjectHolder& obj)
+    : obj_(obj) {
+  }
+
+  runtime::ObjectHolder ReturnExeption::GetValue() {
+    return obj_;
+  }
+
   Return::Return(std::unique_ptr<Statement> statement) : statement_(move(statement)) {
   }
 
   ObjectHolder Return::Execute(Closure& closure, Context& context) {
-    return statement_->Execute(closure, context);
+    auto obj = statement_->Execute(closure, context);
+
+    throw ReturnExeption(obj);
   }
 
   ClassDefinition::ClassDefinition(ObjectHolder cls) :cls_(cls) {
@@ -267,15 +277,14 @@ namespace ast {
 
   ObjectHolder IfElse::Execute(Closure& closure, Context& context) {
     auto cond_result = condition_->Execute(closure, context);
-    auto cond_res_ptr = cond_result.TryAs<runtime::Bool>();
-    if (cond_res_ptr) {
-      if (cond_res_ptr->GetValue()) {
-        return if_body_->Execute(closure, context);
-      }
-      else {
-        return else_body_->Execute(closure, context);
-      }
+
+    if (runtime::IsTrue(cond_result)) {
+      return if_body_->Execute(closure, context);
     }
+    else if(else_body_){
+      return else_body_->Execute(closure, context);
+    }
+
     return {};
   }
 
@@ -341,23 +350,41 @@ namespace ast {
 
   NewInstance::NewInstance(const runtime::Class& class_,
     std::vector<std::unique_ptr<Statement>> args)
-    : class_ref(class_)
+    : class_inst_(class_)
     , args_(move(args)) {
   }
 
   NewInstance::NewInstance(const runtime::Class& class_)
-    : class_ref(class_) {
+    : class_inst_(class_) {
   }
 
-  ObjectHolder NewInstance::Execute(Closure& /*closure*/, Context& /*context*/) {
-    return ObjectHolder::Own(runtime::ClassInstance(class_ref));
+  ObjectHolder NewInstance::Execute(Closure& closure, Context& context) {
+
+    std::vector<runtime::ObjectHolder> actual_args;
+
+    for (const auto& arg : args_) {
+      actual_args.push_back(std::move(arg->Execute(closure, context)));
+    }
+
+    if (class_inst_.HasMethod(INIT_METHOD, args_.size())) {
+      class_inst_.Call(INIT_METHOD, std::move(actual_args), context);
+    }
+
+    return runtime::ObjectHolder::Share(class_inst_);
   }
 
   MethodBody::MethodBody(std::unique_ptr<Statement>&& body) : body_(move(body)) {
   }
 
   ObjectHolder MethodBody::Execute(Closure& closure, Context& context) {
-    return body_->Execute(closure, context);
+    try {
+      body_->Execute(closure, context);
+    }
+    catch (ReturnExeption& obj) {
+      return obj.GetValue();
+    }
+
+    return {};
   }
 
 }  // namespace ast
