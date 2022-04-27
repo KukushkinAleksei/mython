@@ -12,7 +12,7 @@ class Executable;
 }
 
 struct ParseError : std::runtime_error {
-    using std::runtime_error::runtime_error;
+  using std::runtime_error::runtime_error;
 };
 
 std::unique_ptr<runtime::Executable> ParseProgram(parse::Lexer& lexer);
