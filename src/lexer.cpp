@@ -252,7 +252,6 @@ bool istruespace(char ch) {
 }
 
 Lexer::Lexer(std::istream& inp) {
-    // Реализуйте конструктор самостоятельно
   char ch = '\0';
   bool new_line = true;
   int current_indent = 0;

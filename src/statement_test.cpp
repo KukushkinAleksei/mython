@@ -1,6 +1,5 @@
-#include "statement.h"
-
 #include "test_runner_p.h"
+#include "statement.h"
 
 using namespace std;
 

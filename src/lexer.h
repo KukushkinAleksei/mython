@@ -148,7 +148,6 @@ public:
     }
 
 private:
-    // Реализуйте приватную часть самостоятельно
   std::deque<Token> _tokens;
   std::deque<Token>::const_iterator _current_token;
 

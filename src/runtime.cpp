@@ -116,7 +116,7 @@ namespace runtime {
 
     const Method* method_ptr = cls_.GetMethod(method);
     Closure closure;
-    closure["self"] = ObjectHolder::Share(*this);
+    closure[SELF_OBJECT] = ObjectHolder::Share(*this);
 
     for (size_t i = 0; i < method_ptr->formal_params.size(); ++i) {
       auto arg = method_ptr->formal_params[i];
