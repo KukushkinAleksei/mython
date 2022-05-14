@@ -75,7 +75,7 @@ std::ostream& operator<<(std::ostream& os, const Token& rhs) {
   return os << "Unknown token :("sv;
 }
 
-bool valididsimbol(char ch) { return (ch == '_') || isalnum(ch); }
+bool IsValidIdSymbol(char ch) { return (ch == '_') || isalnum(ch); }
 
 bool Lexer::ParseNumber(char& ch, std::istream& inp) {
   if (isdigit(ch)) {
@@ -93,39 +93,23 @@ bool Lexer::ParseNumber(char& ch, std::istream& inp) {
 }
 
 bool Lexer::ParseIdentifer(char& ch, std::istream& inp) {
+  using namespace token_type;
+  static const unordered_map<std::string, Token> keywords_{
+      {"print", Print{}}, {"class", Class{}}, {"return", Return{}},
+      {"if", If{}},       {"else", Else{}},   {"def", Def{}},
+      {"and", And{}},     {"or", Or{}},       {"not", Not{}},
+      {"True", True{}},   {"False", False{}}, {"None", None{}}};
+ 
   if (isalpha(ch) || ch == '_') {
     ostringstream buffer;
 
     buffer << ch;
-    while (inp.get(ch) && valididsimbol(ch)) {
+    while (inp.get(ch) && IsValidIdSymbol(ch)) {
       buffer << ch;
     }
-
     std::string id = buffer.str();
-    if (id == "print"s) {
-      _tokens.push_back(token_type::Print());
-    } else if (id == "class"s) {
-      _tokens.push_back(token_type::Class());
-    } else if (id == "return"s) {
-      _tokens.push_back(token_type::Return());
-    } else if (id == "if"s) {
-      _tokens.push_back(token_type::If());
-    } else if (id == "else"s) {
-      _tokens.push_back(token_type::Else());
-    } else if (id == "def"s) {
-      _tokens.push_back(token_type::Def());
-    } else if (id == "and"s) {
-      _tokens.push_back(token_type::And());
-    } else if (id == "or"s) {
-      _tokens.push_back(token_type::Or());
-    } else if (id == "not"s) {
-      _tokens.push_back(token_type::Not());
-    } else if (id == "True"s) {
-      _tokens.push_back(token_type::True());
-    } else if (id == "False"s) {
-      _tokens.push_back(token_type::False());
-    } else if (id == "None"s) {
-      _tokens.push_back(token_type::None());
+    if (keywords_.count(id)) {
+      _tokens.push_back(keywords_.at(id));
     } else {
       _tokens.push_back(token_type::Id{buffer.str()});
     }
@@ -226,7 +210,7 @@ bool Lexer::ParseComment(char& ch, std::istream& inp) {
   return false;
 }
 
-bool istruespace(char ch) { return ch == ' '; }
+bool IsTrueSpace(char ch) { return ch == ' '; }
 
 Lexer::Lexer(std::istream& inp) {
   char ch = '\0';
@@ -235,16 +219,16 @@ Lexer::Lexer(std::istream& inp) {
   while (inp.get(ch)) {
     ParseComment(ch, inp);
 
-    if (new_line && (istruespace(ch) || current_indent > 0)) {
+    if (new_line && (IsTrueSpace(ch) || current_indent > 0)) {
       int counter = 0;
 
-      if (istruespace(ch)) {
+      if (IsTrueSpace(ch)) {
         ++counter;
       } else {
         inp.putback(ch);
       }
 
-      while (inp.get(ch) && istruespace(ch)) {
+      while (inp.get(ch) && IsTrueSpace(ch)) {
         ++counter;
       }
       // empty line
@@ -281,7 +265,7 @@ Lexer::Lexer(std::istream& inp) {
       continue;
     }
     // skeep single space
-    if (istruespace(ch)) continue;
+    if (IsTrueSpace(ch)) continue;
 
     if (ParseNumber(ch, inp)) continue;
 
@@ -297,9 +281,11 @@ Lexer::Lexer(std::istream& inp) {
       _tokens.push_back(token_type::Dedent());
     }
   }
+
   if (_tokens.size() > 0 &&
       !std::holds_alternative<token_type::Newline>(_tokens.back()) &&
       !std::holds_alternative<token_type::Dedent>(_tokens.back())) {
+
     _tokens.push_back(token_type::Newline());
   }
 

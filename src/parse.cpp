@@ -56,15 +56,15 @@ class Parser {
     vector<runtime::Method> result;
 
     while (lexer_.CurrentToken().Is<TokenType::Def>()) {
-      runtime::Method m;
+      runtime::Method method;
 
-      m.name = lexer_.ExpectNext<TokenType::Id>().value;
+      method.name = lexer_.ExpectNext<TokenType::Id>().value;
       lexer_.ExpectNext<TokenType::Char>('(');
 
       if (lexer_.NextToken().Is<TokenType::Id>()) {
-        m.formal_params.push_back(lexer_.Expect<TokenType::Id>().value);
+        method.formal_params.push_back(lexer_.Expect<TokenType::Id>().value);
         while (lexer_.NextToken() == ',') {
-          m.formal_params.push_back(lexer_.ExpectNext<TokenType::Id>().value);
+          method.formal_params.push_back(lexer_.ExpectNext<TokenType::Id>().value);
         }
       }
 
@@ -72,9 +72,9 @@ class Parser {
       lexer_.ExpectNext<TokenType::Char>(':');
       lexer_.NextToken();
 
-      m.body = std::make_unique<ast::MethodBody>(ParseSuite());  // NOLINT
+      method.body = std::make_unique<ast::MethodBody>(ParseSuite());  // NOLINT
 
-      result.push_back(std::move(m));
+      result.push_back(std::move(method));
     }
     return result;
   }

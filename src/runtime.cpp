@@ -122,10 +122,11 @@ Class::Class(std::string name, std::vector<Method> methods, const Class* parent)
 
 const Method* Class::GetMethod(const std::string& name) const {
   auto name_method_pair = name_to_method_.find(name);
-  if (name_method_pair != name_to_method_.end())
+  if (name_method_pair != name_to_method_.end()) {
     return name_method_pair->second;
-  else
+  } else {
     return nullptr;
+  }
 }
 
 [[nodiscard]] const std::string& Class::GetName() const { return name_; }
